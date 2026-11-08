@@ -1,2 +1,57 @@
 # nodejs-api-db-assessment
-Quick self-pace homework assessment for simple CRUD REST API using NodeJS and a NoSQL DB
+
+Take-home template for a Node.js REST API that mimics **API Gateway → Lambda → DynamoDB**.
+
+Candidates implement banking endpoints (customers / accounts / balances) against a provided OpenAPI contract, using DynamoDB Local and serverless-offline.
+
+## Quick start (candidates)
+
+```bash
+cp .env.example .env
+npm install
+npm run setup
+npm start
+```
+
+- API: http://localhost:3000  
+- Swagger UI: http://localhost:3000/docs  
+- Contract: [`openapi/openapi.yaml`](openapi/openapi.yaml)  
+- Instructions: [`ASSESSMENT.md`](ASSESSMENT.md)
+
+## Stack
+
+| Concern | Local stand-in |
+|---------|----------------|
+| API Gateway + Lambda | Serverless Framework + `serverless-offline` |
+| DynamoDB | DynamoDB Local via Docker (`docker compose`) |
+| SDK | AWS SDK v3 (`@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`) |
+
+## Project layout
+
+```
+openapi/openapi.yaml          API contract (source of truth)
+serverless.yml                Function ↔ HTTP route mapping
+src/handlers/                 Lambda-style handlers (stubs → implement)
+src/lib/                      DynamoDB client + response helpers
+scripts/                      Create tables, seed data, wait-for-db
+docker-compose.yml            DynamoDB Local
+ASSESSMENT.md                 Candidate brief
+```
+
+## Useful commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm run setup` | Start DB, create tables, seed |
+| `npm start` | Run API locally (port 3000) |
+| `npm run db:reset` | Recreate tables + reseed |
+| `npm run db:down` | Stop DynamoDB Local |
+| `npm run test:smoke` | Grader HTTP smoke tests (reference / completed submissions) |
+
+## For assessors
+
+- **Candidate template:** branch `cursor/candidate-assessment-template` (`501` stubs)
+- **Reference solution:** this branch `cursor/reference-solution` — see [`REFERENCE.md`](REFERENCE.md)
+- **Grader assets:** [`graders/`](graders/) — Postman collection + `smoke.js`
+
+Keep this branch and grader materials private; do not share with candidates.

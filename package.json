@@ -1,0 +1,29 @@
+{
+  "name": "nodejs-api-db-assessment",
+  "version": "1.0.0",
+  "description": "Take-home assessment: Node.js REST API with DynamoDB-style storage (Lambda + API Gateway pattern)",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "offline": "serverless offline start --httpPort 3000",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:create": "node scripts/create-tables.js",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "npm run db:create && npm run db:seed",
+    "setup": "npm run db:up && node scripts/wait-for-dynamodb.js && npm run db:reset",
+    "start": "npm run offline",
+    "test:smoke": "node graders/smoke.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/lib-dynamodb": "^3.758.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.40.0",
+    "serverless-offline": "^13.9.0"
+  }
+}
