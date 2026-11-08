@@ -10,6 +10,7 @@ This branch (`cursor/reference-solution`) contains a complete implementation of 
 - Shared validation in `src/lib/validation.js`
 - Grader smoke script: `npm run test:smoke`
 - Postman collection under `graders/postman/`
+- Live follow-ups: [`graders/INTERVIEWER_FOLLOWUPS.md`](graders/INTERVIEWER_FOLLOWUPS.md)
 - Swagger UI at `/docs`
 
 ## Verify
