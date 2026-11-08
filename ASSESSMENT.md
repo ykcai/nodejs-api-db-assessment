@@ -38,7 +38,8 @@ Seeded ids you can use while implementing:
 - Customers: `cust_001`, `cust_002`
 - Accounts: `acct_001`, `acct_002`, `acct_003`
 
-API contract: [`openapi/openapi.yaml`](openapi/openapi.yaml)
+API contract: [`openapi/openapi.yaml`](openapi/openapi.yaml)  
+Interactive docs: http://localhost:3000/docs
 
 ## What you must implement (core)
 

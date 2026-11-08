@@ -14,6 +14,7 @@ npm start
 ```
 
 - API: http://localhost:3000  
+- Swagger UI: http://localhost:3000/docs  
 - Contract: [`openapi/openapi.yaml`](openapi/openapi.yaml)  
 - Instructions: [`ASSESSMENT.md`](ASSESSMENT.md)
 
@@ -45,7 +46,12 @@ ASSESSMENT.md                 Candidate brief
 | `npm start` | Run API locally (port 3000) |
 | `npm run db:reset` | Recreate tables + reseed |
 | `npm run db:down` | Stop DynamoDB Local |
+| `npm run test:smoke` | Grader HTTP smoke tests (reference / completed submissions) |
 
 ## For assessors
 
-Keep the **reference solution** and scoring rubric in a private place (separate branch/repo). This branch is the candidate-facing template with `501` stubs only.
+- **Candidate template:** branch `cursor/candidate-assessment-template` (`501` stubs)
+- **Reference solution:** this branch `cursor/reference-solution` — see [`REFERENCE.md`](REFERENCE.md)
+- **Grader assets:** [`graders/`](graders/) — Postman collection + `smoke.js`
+
+Keep this branch and grader materials private; do not share with candidates.

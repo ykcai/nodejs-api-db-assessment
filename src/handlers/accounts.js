@@ -1,60 +1,148 @@
 "use strict";
 
-const { notImplemented, parseJsonBody } = require("../lib/response");
-// const { docClient, TABLES } = require("../lib/dynamodb");
-// const { GetCommand, PutCommand, QueryCommand } = require("@aws-sdk/lib-dynamodb");
-// const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
+const { GetCommand, PutCommand, QueryCommand } = require("@aws-sdk/lib-dynamodb");
+const { docClient, TABLES } = require("../lib/dynamodb");
+const {
+  created,
+  ok,
+  badRequest,
+  notFound,
+  serverError,
+  parseJsonBody,
+} = require("../lib/response");
+const {
+  isValidAccountType,
+  isValidCurrency,
+  isFiniteNumber,
+  roundMoney,
+} = require("../lib/validation");
+
+async function getCustomerOrNull(customerId) {
+  const result = await docClient.send(
+    new GetCommand({
+      TableName: TABLES.customers,
+      Key: { customerId },
+    })
+  );
+  return result.Item || null;
+}
 
 /**
  * POST /customers/{customerId}/accounts
- *
- * TODO: Create an account for an existing customer.
- * - Validate customer exists
- * - Validate type (CHECKING|SAVINGS) and currency (CAD|USD)
- * - initialBalance defaults to 0 and must be >= 0
- * - Persist to Accounts table (include customerId for the GSI)
- * - Return 201 with Account
  */
 async function create(event) {
   const customerId = event.pathParameters?.customerId;
+  if (!customerId) {
+    return badRequest("customerId is required");
+  }
+
   const parsed = parseJsonBody(event);
   if (!parsed.ok) {
     return parsed.response;
   }
 
-  return notImplemented(
-    `Implement POST /customers/${customerId || "{customerId}"}/accounts`
-  );
+  const { type, currency, initialBalance = 0 } = parsed.data;
+
+  if (!isValidAccountType(type)) {
+    return badRequest("type must be CHECKING or SAVINGS");
+  }
+  if (!isValidCurrency(currency)) {
+    return badRequest("currency must be CAD or USD");
+  }
+  if (!isFiniteNumber(initialBalance) || initialBalance < 0) {
+    return badRequest("initialBalance must be a number >= 0");
+  }
+
+  try {
+    const customer = await getCustomerOrNull(customerId);
+    if (!customer) {
+      return notFound(`Customer not found: ${customerId}`);
+    }
+
+    const account = {
+      accountId: `acct_${uuidv4()}`,
+      customerId,
+      type,
+      currency,
+      balance: roundMoney(initialBalance),
+      status: "OPEN",
+      createdAt: new Date().toISOString(),
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLES.accounts,
+        Item: account,
+      })
+    );
+
+    return created(account);
+  } catch (err) {
+    console.error("createAccount failed", err);
+    return serverError();
+  }
 }
 
 /**
  * GET /customers/{customerId}/accounts
- *
- * TODO: List accounts for a customer.
- * - Prefer Query on the CustomerIdIndex GSI (avoid Scan)
- * - Return 200: { items: Account[] }
- * - Return 404 if the customer does not exist
  */
 async function list(event) {
   const customerId = event.pathParameters?.customerId;
+  if (!customerId) {
+    return badRequest("customerId is required");
+  }
 
-  return notImplemented(
-    `Implement GET /customers/${customerId || "{customerId}"}/accounts`
-  );
+  try {
+    const customer = await getCustomerOrNull(customerId);
+    if (!customer) {
+      return notFound(`Customer not found: ${customerId}`);
+    }
+
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLES.accounts,
+        IndexName: "CustomerIdIndex",
+        KeyConditionExpression: "customerId = :customerId",
+        ExpressionAttributeValues: {
+          ":customerId": customerId,
+        },
+      })
+    );
+
+    return ok({ items: result.Items || [] });
+  } catch (err) {
+    console.error("listAccounts failed", err);
+    return serverError();
+  }
 }
 
 /**
  * GET /accounts/{accountId}
- *
- * TODO: Get a single account including balance.
- * - Return 200 with Account, or 404 if missing
  */
 async function get(event) {
   const accountId = event.pathParameters?.accountId;
+  if (!accountId) {
+    return badRequest("accountId is required");
+  }
 
-  return notImplemented(
-    `Implement GET /accounts/${accountId || "{accountId}"}`
-  );
+  try {
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLES.accounts,
+        Key: { accountId },
+      })
+    );
+
+    if (!result.Item) {
+      return notFound(`Account not found: ${accountId}`);
+    }
+
+    return ok(result.Item);
+  } catch (err) {
+    console.error("getAccount failed", err);
+    return serverError();
+  }
 }
 
 module.exports = {

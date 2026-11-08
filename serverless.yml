@@ -34,6 +34,20 @@ custom:
     noPrependStageInUrl: true
 
 functions:
+  docsUi:
+    handler: src/handlers/docs.ui
+    events:
+      - http:
+          path: docs
+          method: get
+
+  openapiSpec:
+    handler: src/handlers/docs.openapi
+    events:
+      - http:
+          path: openapi.yaml
+          method: get
+
   createCustomer:
     handler: src/handlers/customers.create
     events:
