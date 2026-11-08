@@ -14,6 +14,7 @@ npm start
 ```
 
 - API: http://localhost:3000  
+- Swagger UI: http://localhost:3000/docs  
 - Contract: [`openapi/openapi.yaml`](openapi/openapi.yaml)  
 - Instructions: [`ASSESSMENT.md`](ASSESSMENT.md)
 
@@ -48,4 +49,8 @@ ASSESSMENT.md                 Candidate brief
 
 ## For assessors
 
-Keep the **reference solution** and scoring rubric in a private place (separate branch/repo). This branch is the candidate-facing template with `501` stubs only.
+- **Candidate template:** this branch (`501` stubs)
+- **Reference solution:** branch `cursor/reference-solution` (full handlers + smoke tests)
+- **Grader assets:** [`graders/`](graders/) — Postman collection; smoke script lives on the reference branch
+
+Keep the reference branch / grader materials private; do not share with candidates.
