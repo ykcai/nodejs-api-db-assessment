@@ -80,7 +80,9 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# Ignore dist contents except candidate distribution zips
+dist/*
+!dist/*.zip
 .output
 
 # Gatsby files
